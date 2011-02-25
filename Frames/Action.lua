@@ -34,7 +34,7 @@ local function setAction(self, config)
   -- Store the spell book type and ID
   self.spellBookType, self.spellID = findSpellByName(config[1])
   local tex = GetSpellTexture(self.spellID, self.spellBookType)
-  self.texture:SetTexture(tex)
+  self.Texture:SetTexture(tex)
 
   -- Load the priority function
   local functionString = "return function() return "..self.config[2].."; end"
@@ -78,17 +78,17 @@ function FactoryInterface:Create()
   frame:SetWidth(38)
   frame:SetHeight(38)
 
-  frame.texture = frame:CreateTexture(nil, "ARTWORK")
-  frame.texture:SetWidth(34)
-  frame.texture:SetHeight(34)
-  frame.texture:SetPoint("CENTER", frame, "CENTER", 0, 0)
+  frame.Texture = frame:CreateTexture(nil, "ARTWORK")
+  frame.Texture:SetWidth(34)
+  frame.Texture:SetHeight(34)
+  frame.Texture:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
-  frame.border = frame:CreateTexture(nil, "OVERLAY")
-  frame.border:SetWidth(38)
-  frame.border:SetHeight(38)
-  frame.border:SetTexture("Interface\\Buttons\\UI-Debuff-Border")
-  frame.border:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  frame.border:SetVertexColor(0, 0, 0, 1)
+  frame.Border = frame:CreateTexture(nil, "OVERLAY")
+  frame.Border:SetWidth(38)
+  frame.Border:SetHeight(38)
+  frame.Border:SetTexture("Interface\\Buttons\\UI-Debuff-Border")
+  frame.Border:SetPoint("CENTER", frame, "CENTER", 0, 0)
+  frame.Border:SetVertexColor(0, 0, 0, 1)
 
   frame.Flash = frame:CreateTexture(nil, "OVERLAY")
   frame.Flash:SetPoint("CENTER", frame)
