@@ -25,10 +25,10 @@ local function reloadConfiguration()
   local unitClass = select(2, UnitClass("player"))
   local activeConfig = RotationConfig[unitClass][GetActiveTalentGroup(false, false) + 1]
 
-  -- Adjust the width of the Rotation frame
+  -- Adjust the width of the main Rotation frame
   Rotation:SetWidth(#activeConfig * 50)
 
-  -- Clear all action icons
+  -- Clear all action frames
   IFrameFactory:Clear("Rotation", "Action")
 
   -- It's possible that the config file doesn't include the description for
@@ -50,7 +50,7 @@ local function reloadConfiguration()
     parent = frame
 
     -- Store the action in a table so we can later sort it and figure
-    -- out the next best action
+    -- out what the next best action ist
     table.insert(Rotation.Actions, frame)
   end
 end
@@ -77,9 +77,11 @@ print(event)
   end
 end)
 
-function Rotation:Update()
-  print("Updating priorities")
 
+-- Everyone can call this function if the action priorities may have changed.
+-- One user are the action frames themselves, as there is no event fired when
+-- a cooldown expires.
+function Rotation:Update()
   -- Sort by availability and priority
   table.sort(Rotation.Actions, function(a, b)
   if a == nil then return false; end
@@ -91,12 +93,14 @@ function Rotation:Update()
     end
   end)
 
+  -- Highlight the two actions with the highest priorities
   local hightlightMap = { "high", "medium" }
   for idx, action in ipairs(Rotation.Actions) do
     if hightlightMap[idx] then print("Highlighting "..action.config[1]); end
     action:doHighlight(hightlightMap[idx])
   end
 
+  -- The bar shows the last 1.5 seconds of the cooldown to the next action
   local action = Rotation.Actions[1]
   local timeLeft = action:availableAt() - GetTime()
   if (timeLeft > 0 and timeLeft < 1.5) then
