@@ -8,6 +8,7 @@ local function showBar(self, startTime, endTime)
   self:SetAlpha(1.0);
   self:Show();
 
+  self.endTime = endTime;
   self.value = endTime - GetTime();
   self.maxValue = endTime - startTime;
 

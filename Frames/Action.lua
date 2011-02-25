@@ -19,7 +19,13 @@ local function findSpellByName(name)
   end
 end
 
-local function reloadConfiguration(self)
+local function availableAt(self)
+  local start, duration = GetSpellCooldown(self.spellID, self.spellBookType)
+  return start and start + duration or 0
+end
+
+local function getPriority(self)
+  return self.calculatePriority()
 end
 
 local function setAction(self, config)
@@ -32,23 +38,38 @@ local function setAction(self, config)
 
   -- Load the priority function
   local functionString = "return function() return "..self.config[2].."; end"
-  self.calculatePriority = loadstring(functionString)
+  self.calculatePriority = loadstring(functionString)()
 
   -- Restrict the execution environment to our special one
   setfenv(self.calculatePriority, RotationConfigEnvironment)
+end
 
-  self.start, self.duration = 0, 0
-
-  reloadConfiguration()
+local function doHighlight(self, state)
+  if state == "high" then
+    self.Flash:SetVertexColor(1.0, 0.0, 0.0);
+    self.Flash:SetAlpha(1)
+    self.Flash:Show()
+  elseif state == "medium" then
+    self.Flash:SetVertexColor(1.0, 1.0, 0.0);
+    self.Flash:SetAlpha(1)
+    self.Flash:Show()
+  else
+    self.Flash:SetVertexColor(0.0, 1.0, 0.0);
+    self.Flash:SetAlpha(0)
+    self.Flash:Hide()
+  end
 end
 
 local function onEvent(self, event, ...)
-  
+  local start, duration = GetSpellCooldown(self.spellID, self.spellBookType)
+  self.coolDownEnd = start and start + duration or nil
 end
 
 local function onUpdate(self, elapsed)
-  local start, duration, hasCooldown = GetSpellCooldown(self.spellID, self.spellBookType)
-  self.hasCooldown, self.start, self.duration = hasCooldown, start, duration
+  -- There is no event which fires when a cooldown expires :(
+  if self.coolDownEnd and self.coolDownEnd < GetTime() then
+    self.coolDownEnd = Rotation:Update()
+  end
 end
 
 function FactoryInterface:Create()
@@ -69,14 +90,22 @@ function FactoryInterface:Create()
   frame.border:SetPoint("CENTER", frame, "CENTER", 0, 0)
   frame.border:SetVertexColor(0, 0, 0, 1)
 
-  frame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
-  frame:RegisterEvent("UPDATE_SHAPESHIFT_FORMS")
-  frame:RegisterEvent("UNIT_AURA")
+  frame.Flash = frame:CreateTexture(nil, "OVERLAY")
+  frame.Flash:SetPoint("CENTER", frame)
+  frame.Flash:SetTexture("Interface\\AddOns\\Rotation\\Textures\\Flash")
+  frame.Flash:SetVertexColor(0.0, 1.0, 0.0)
 
-  frame:SetScript("OnEvent", onUpdate)
+  frame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+
+  frame:SetScript("OnEvent", onEvent)
   frame:SetScript("OnUpdate", onUpdate)
 
   frame.setAction = setAction
+
+  frame.availableAt = availableAt
+  frame.getPriority = getPriority
+
+  frame.doHighlight = doHighlight
 
   return frame
 end

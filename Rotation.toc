@@ -3,7 +3,6 @@
 ## Notes: Spell rotation indicator
 ## Author: wereHamster
 ## Dependencies: IFrameManager
-## SavedVariablesPerCharacter: RotationConfig
 
 ## OptionalDeps: IFrameFactory git@github.com:wereHamster/IFrameFactory.git 51b9119:Lib/
 Libs\IFrameFactory\IFrameFactory.lua
