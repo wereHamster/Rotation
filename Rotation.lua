@@ -115,6 +115,8 @@ function Rotation:Update()
     end
   end
 
+  if #Actions.List == 0 then return end
+
   -- The bar shows the last 1.5 seconds of the cooldown to the next action
   nextAction = nextAction or Actions.List[1]
   local timeLeft = nextAction:availableAt() - GetTime()
