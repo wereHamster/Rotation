@@ -21,27 +21,29 @@ end
 
 local function availableAt(self)
   local start, duration = GetSpellCooldown(self.spellID, self.spellBookType)
+--  ChatFrame1:AddMessage("cooldown: "..(start or "no start").." "..(duration or "no duration"))
   return start and start + duration or 0
 end
 
-local function getPriority(self)
-  return self.calculatePriority()
+local function canExecute(self)
+  local name, rank, icon, powerCost, isFunnel, powerType, castingTime, minRange, maxRange = GetSpellInfo(self.spellID, self.spellBookType)
+  return self.executeCondition() and powerCost <= UnitMana("player")
 end
 
 local function setAction(self, config)
   self.config = config
 
   -- Store the spell book type and ID
-  self.spellBookType, self.spellID = findSpellByName(config[1])
+  self.spellBookType, self.spellID = findSpellByName(config[2])
   local tex = GetSpellTexture(self.spellID, self.spellBookType)
   self.Texture:SetTexture(tex)
 
-  -- Load the priority function
-  local functionString = "return function() return "..self.config[2].."; end"
-  self.calculatePriority = loadstring(functionString)()
+  -- Load the function which tells us if we can execute the action
+  local functionString = "return function() return "..self.config[3].."; end"
+  self.executeCondition = loadstring(functionString)()
 
   -- Restrict the execution environment to our special one
-  setfenv(self.calculatePriority, RotationConfigEnvironment)
+  setfenv(self.executeCondition, RotationConfigEnvironment)
 end
 
 local function doHighlight(self, state)
@@ -79,21 +81,19 @@ function FactoryInterface:Create()
   frame:SetHeight(38)
 
   frame.Texture = frame:CreateTexture(nil, "ARTWORK")
-  frame.Texture:SetWidth(34)
-  frame.Texture:SetHeight(34)
+  frame.Texture:SetWidth(38)
+  frame.Texture:SetHeight(38)
   frame.Texture:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
-  frame.Border = frame:CreateTexture(nil, "OVERLAY")
-  frame.Border:SetWidth(38)
-  frame.Border:SetHeight(38)
-  frame.Border:SetTexture("Interface\\Buttons\\UI-Debuff-Border")
-  frame.Border:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  frame.Border:SetVertexColor(0, 0, 0, 1)
+  -- Border is created by !Beautycase.
+  frame:CreateBorder(6)
+  frame:SetBorderColor(1, 1, 1, 1)
 
   frame.Flash = frame:CreateTexture(nil, "OVERLAY")
   frame.Flash:SetPoint("CENTER", frame)
   frame.Flash:SetTexture("Interface\\AddOns\\Rotation\\Textures\\Flash")
   frame.Flash:SetVertexColor(0.0, 1.0, 0.0)
+  frame.Flash:Hide()
 
   frame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 
@@ -103,7 +103,7 @@ function FactoryInterface:Create()
   frame.setAction = setAction
 
   frame.availableAt = availableAt
-  frame.getPriority = getPriority
+  frame.canExecute = canExecute
 
   frame.doHighlight = doHighlight
 

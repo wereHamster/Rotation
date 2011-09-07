@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="ROTATION_CHANGE_PRESET" description="Change the rotation preset" header="ROTATION_HEADER">
+    Rotation.changePreset()
+  </Binding>
+</Bindings>

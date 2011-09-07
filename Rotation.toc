@@ -1,6 +1,6 @@
-## Interface: 40000
+## Interface: 40200
 ## Title: Rotation
-## Notes: Spell rotation indicator
+## Notes: Spell rotation display`
 ## Author: wereHamster
 ## Dependencies: IFrameManager
 
@@ -9,7 +9,11 @@ Libs\IFrameFactory\IFrameFactory.lua
 
 Frames\Action.lua
 Frames\Bar.lua
+Frames\Icon.lua
+Frames\Rotation.lua
 
-Rotation.lua
-RotationConfig.lua
 RotationConfigEnvironment.lua
+RotationConfig.lua
+Rotation.lua
+
+Bindings.xml

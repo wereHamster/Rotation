@@ -1,32 +1,30 @@
 
+-- Bindings headers and labels
+_G["BINDING_ROTATION_HEADER"] = "Rotation"
+_G["BINDING_ROTATION_CHANGE_PRESET"] = "Change the rotation preset"
+
+
 local IFrameFactory = IFrameFactory("1.0")
 
-Rotation = CreateFrame("Frame", "Rotation", UIParent)
+Rotation = IFrameFactory:Create("Rotation", "Rotation")
 IFrameManager:Register(Rotation, IFrameManager:Interface())
 
+-- Just for debugging purposes
+local function log(msg)
+  ChatFrame1:AddMessage(msg)
+end
 
--- Height is always the same, width is a reasonable initial value
-Rotation:SetWidth(200)
-Rotation:SetHeight(44 + 6 + 26)
-Rotation:SetPoint("CENTER", UIParent, "CENTER")
-
-
--- The cooldown bar, anchored at the top of the rotation indicator frame
-Rotation.Bar = IFrameFactory:Create("Rotation", "Bar")
-Rotation.Bar:SetPoint("TOPLEFT", Rotation)
-Rotation.Bar:SetPoint("TOPRIGHT", Rotation)
-
+-- Default is the single target damage preset. You can change it with
+-- the keybindings.
+local presetList, activePreset = { "single-damage", "multi-damage" }, 1
 
 -- Reloading the configuration basically means loading the config file,
 -- and creating the appropriate action frames.
-Rotation.Actions = { }
+local Actions = { Frames = { }, List = { } }
 local function reloadConfiguration()
   -- Detect class and talent specialization and load its config
   local unitClass = select(2, UnitClass("player"))
-  local activeConfig = RotationConfig[unitClass][GetActiveTalentGroup(false, false) + 1]
-
-  -- Adjust the width of the main Rotation frame
-  Rotation:SetWidth(#activeConfig * 50)
+  local activeConfig = RotationConfig[unitClass][presetList[activePreset]]
 
   -- Clear all action frames
   IFrameFactory:Clear("Rotation", "Action")
@@ -35,26 +33,38 @@ local function reloadConfiguration()
   -- the current class or talent spec...
   if activeConfig == nil then return end
 
-  -- Load each action into one frame
-  Rotation.Actions = { }
-  for _, action in pairs(activeConfig) do
-    local frame = IFrameFactory:Create("Rotation", "Action")
+  -- Set the correct icons
+  local icon1, icon2 = ("-"):split(presetList[activePreset])
+  Rotation.setPreset(icon1, icon2)
 
-    if (parent) then
-      frame:SetPoint("LEFT", parent, "RIGHT", 12, 0)
-    else
-      frame:SetPoint("BOTTOMLEFT", Rotation, "BOTTOMLEFT", 6, 6)
+  -- Load each action into one frame
+  Actions = { Frames = { }, List = { } }
+
+  local parent, num = nil, 0
+  for _, entry in pairs(activeConfig) do
+    local type, name, fn = unpack(entry)
+
+    local frame = Actions.Frames[name]
+    if not frame then
+      frame = IFrameFactory:Create("Rotation", "Action")
+
+      -- Store the frame to keep track of which frames we've already created.
+      Actions.Frames[name] = frame
+      frame:setAction(entry)
+
+      frame.prio = num
+      parent, num = frame, num + 1
     end
 
-    frame:setAction(action)
-    parent = frame
-
-    -- Store the action in a table so we can later sort it and figure
-    -- out what the next best action ist
-    table.insert(Rotation.Actions, frame)
+    table.insert(Actions.List, frame)
   end
 end
 
+-- This is bound to a key
+Rotation.changePreset = function()
+  activePreset = ((activePreset) % (#presetList)) + 1
+  reloadConfiguration(); Rotation:Update()
+end
 
 -- Reload configuration if the circumstances require
 Rotation:RegisterEvent("PLAYER_LOGIN")
@@ -67,43 +77,48 @@ Rotation:RegisterEvent("UPDATE_SHAPESHIFT_FORMS")
 Rotation:RegisterEvent("UNIT_AURA")
 
 
-function print(s) ChatFrame1:AddMessage(s); end
 Rotation:SetScript("OnEvent", function(self, event, ...)
-print(event)
   if event == "PLAYER_LOGIN" or event == "ACTIVE_TALENT_GROUP_CHANGED" then
     reloadConfiguration()
-  else
-    Rotation:Update()
   end
+
+  Rotation:Update()
 end)
 
+
+local function sortByPriority(a, b)
+  if a == nil then return false; end
+  if b == nil then return true; end
+
+  if a:availableAt() == b:availableAt() then
+    return a.prio < b.prio
+  else
+    return a:availableAt() < b:availableAt()
+  end
+end
 
 -- Everyone can call this function if the action priorities may have changed.
 -- One user are the action frames themselves, as there is no event fired when
 -- a cooldown expires.
 function Rotation:Update()
-  -- Sort by availability and priority
-  table.sort(Rotation.Actions, function(a, b)
-  if a == nil then return false; end
-  if b == nil then return true; end
-    if a:availableAt() == b:availableAt() then
-      return a:getPriority() < b:getPriority()
-    else
-      return a:availableAt() < b:availableAt()
-    end
-  end)
+  table.sort(Actions.List, sortByPriority)
 
-  -- Highlight the two actions with the highest priorities
-  local hightlightMap = { "high", "medium" }
-  for idx, action in ipairs(Rotation.Actions) do
-    if hightlightMap[idx] then print("Highlighting "..action.config[1]); end
-    action:doHighlight(hightlightMap[idx])
+  local highlightMap, idx, nextAction = { "high", "medium" }, 1, nil
+  for _, action in ipairs(Actions.List) do
+    if idx < 4 and action:canExecute() then
+      Rotation.setAction(idx, action)
+      idx = idx + 1
+      nextAction = nextAction or action
+    else
+      action:ClearAllPoints()
+      action:SetPoint("BOTTOMRIGHT", UIParent, "TOPLEFT", 0, 0)
+    end
   end
 
   -- The bar shows the last 1.5 seconds of the cooldown to the next action
-  local action = Rotation.Actions[1]
-  local timeLeft = action:availableAt() - GetTime()
-  if (timeLeft > 0 and timeLeft < 1.5) then
-    Rotation.Bar:showBar(action:availableAt() - 1.5, action:availableAt())
+  nextAction = nextAction or Actions.List[1]
+  local timeLeft = nextAction:availableAt() - GetTime()
+  if timeLeft > 0 then
+    Rotation.Bar:showBar(nextAction:availableAt() - 1.5, nextAction:availableAt())
   end
 end
