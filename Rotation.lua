@@ -1,7 +1,7 @@
 
 -- Bindings headers and labels
-_G["BINDING_ROTATION_HEADER"] = "Rotation"
-_G["BINDING_ROTATION_CHANGE_PRESET"] = "Change the rotation preset"
+BINDING_HEADER_ROTATION = "Rotation"
+BINDING_NAME_ROTATION_CHANGE_PRESET = "Change rotation preset"
 
 
 local IFrameFactory = IFrameFactory("1.0")
