@@ -16,7 +16,7 @@ end
 
 -- Default is the single target damage preset. You can change it with
 -- the keybindings.
-local presetList, activePreset = { "single-damage", "multi-damage" }, 1
+local presetList, activePreset = { "single-damage", "multi-damage", "single-threat", "multi-threat" }, 1
 
 -- Reloading the configuration basically means loading the config file,
 -- and creating the appropriate action frames.
@@ -29,13 +29,13 @@ local function reloadConfiguration()
   -- Clear all action frames
   IFrameFactory:Clear("Rotation", "Action")
 
-  -- It's possible that the config file doesn't include the description for
-  -- the current class or talent spec...
-  if activeConfig == nil then return end
-
   -- Set the correct icons
   local icon1, icon2 = ("-"):split(presetList[activePreset])
   Rotation.setPreset(icon1, icon2)
+
+  -- It's possible that the config file doesn't include the description for
+  -- the current class or talent spec...
+  if activeConfig == nil then return end
 
   -- Load each action into one frame
   Actions = { Frames = { }, List = { } }
