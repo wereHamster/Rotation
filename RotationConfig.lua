@@ -20,4 +20,20 @@ RotationConfig = {
     ["multi-damage"] = {
     },
   },
+  ["PRIEST"] = {
+    ["single-damage"] = {
+      { "s", "Shadow Word: Pain",   [[ true ]] },
+      { "s", "Mind Blast",          [[ buffStacks("Shadow Orb") > 0 ]] },
+      { "s", "Vampiric Touch",      [[ true ]] },
+      { "s", "Devouring Plague",    [[ true ]] },
+      { "s", "Mind Blast",          [[ buffStacks("Shadow Orb") == 0 ]] },
+      { "s", "Shadow Word: Death",  [[ true ]] },
+      { "s", "Archangle",           [[ true ]] },
+      { "s", "Shadowfiend",         [[ true ]] },
+      { "s", "Mind Flay",           [[ true ]] },
+    },
+    ["multi-damage"] = {
+    },
+  },
 }
+
