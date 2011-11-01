@@ -2,7 +2,7 @@
 ## Title: Rotation
 ## Notes: Spell rotation display`
 ## Author: wereHamster
-## Dependencies: IFrameManager
+## Dependencies: IFrameManager, !Beautycase
 
 ## OptionalDeps: IFrameFactory git@github.com:wereHamster/IFrameFactory.git 51b9119:Lib/
 Libs\IFrameFactory\IFrameFactory.lua
