@@ -23,14 +23,14 @@ RotationConfig = {
   ["PRIEST"] = {
     ["single-damage"] = {
       { "s", "Shadow Word: Pain",   [[ not targetHasDot("Shadow Word: Pain") ]] },
-      { "s", "Mind Blast",          [[ buffStacks("Shadow Orb") > 0 ]] },
+      { "s", "Mind Blast",          [[ buffStacks("Shadow Orb") > 0 and cooldownRemaining("Mind Blast") <= 1.5 ]] },
       { "s", "Vampiric Touch",      [[ not targetHasDot("Vampiric Touch") ]] },
       { "s", "Devouring Plague",    [[ not targetHasDot("Devouring Plague") ]] },
-      { "s", "Mind Blast",          [[ buffStacks("Shadow Orb") == 0 ]] },
-      { "s", "Shadow Word: Death",  [[ true ]] },
-      { "s", "Archangel",           [[ buffStacks("Dark Evangelism") > 0 ]] },
-      { "s", "Shadowfiend",         [[ true ]] },
-      { "s", "Mind Flay",           [[ true ]] },
+      { "s", "Mind Blast",          [[ buffStacks("Shadow Orb") == 0 and cooldownRemaining("Mind Blast") <= 1.5 ]] },
+      { "s", "Shadow Word: Death",  [[ cooldownRemaining("Shadow Word: Death") <= 1.5 ]] },
+      { "s", "Archangel",           [[ buffStacks("Dark Evangelism") > 0 and cooldownRemaining("Archangel") <= 1.5 ]] },
+      { "s", "Shadowfiend",         [[ cooldownRemaining("Shadowfiend") <= 1.5 ]] },
+      { "s", "Mind Flay",           [[ true  ]] },
     },
     ["multi-damage"] = {
     },
