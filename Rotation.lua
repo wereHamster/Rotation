@@ -102,13 +102,17 @@ end
 -- a cooldown expires.
 function Rotation:Update()
   table.sort(Actions.List, sortByPriority)
-
+  local actionInRotation = {}
   local highlightMap, idx, nextAction = { "high", "medium" }, 1, nil
   for _, action in ipairs(Actions.List) do
+
     if idx < 4 and action:canExecute() then
-      Rotation.setAction(idx, action)
-      idx = idx + 1
-      nextAction = nextAction or action
+      if not actionInRotation[action.config[2]] then
+        Rotation.setAction(idx, action)
+        idx = idx + 1
+        nextAction = nextAction or action
+        actionInRotation[action.config[2]] = 1
+      end
     else
       action:ClearAllPoints()
       action:SetPoint("BOTTOMRIGHT", UIParent, "TOPLEFT", 0, 0)
