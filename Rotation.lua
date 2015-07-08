@@ -22,20 +22,25 @@ local presetList, activePreset = { "single-damage", "multi-damage", "single-thre
 -- and creating the appropriate action frames.
 local Actions = { Frames = { }, List = { } }
 local function reloadConfiguration()
-  -- Detect class and talent specialization and load its config
-  local unitClass = select(2, UnitClass("player"))
-  local activeConfig = RotationConfig[unitClass][presetList[activePreset]]
-
   -- Clear all action frames
   IFrameFactory:Clear("Rotation", "Action")
 
+  -- Detect class and talent specialization and load its config
+  local unitClass = select(2, UnitClass("player"))
+  local classConfig = RotationConfig[unitClass]
+  if classConfig == nil then return end
+
+  local preset = presetList[activePreset]
+  local activeConfig = classConfig[preset]
+
   -- Set the correct icons
-  local icon1, icon2 = ("-"):split(presetList[activePreset])
+  local icon1, icon2 = ("-"):split(preset)
   Rotation.setPreset(icon1, icon2)
 
   -- It's possible that the config file doesn't include the description for
   -- the current class or talent spec...
   if activeConfig == nil then return end
+
 
   -- Load each action into one frame
   Actions = { Frames = { }, List = { } }

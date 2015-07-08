@@ -1,6 +1,6 @@
-## Interface: 40200
+## Interface: 60200
 ## Title: Rotation
-## Notes: Spell rotation display`
+## Notes: Spell rotation display
 ## Author: wereHamster
 ## Dependencies: IFrameManager, !Beautycase
 

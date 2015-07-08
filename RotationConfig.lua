@@ -30,10 +30,18 @@ RotationConfig = {
       { "s", "Shadow Word: Death",  [[ cooldownRemaining("Shadow Word: Death") <= 1.5 ]] },
       { "s", "Archangel",           [[ buffStacks("Dark Evangelism") > 0 and cooldownRemaining("Archangel") <= 1.5 ]] },
       { "s", "Shadowfiend",         [[ cooldownRemaining("Shadowfiend") <= 1.5 ]] },
-      { "s", "Mind Flay",           [[ true  ]] },
+      { "s", "Mind Flay",           [[ true ]] },
     },
     ["multi-damage"] = {
     },
   },
+  ["MAGE"] = {
+    ["single-damage"] = {
+      { "s", "Frostfire Bolt",   [[ mana() > 1200 ]] },
+      { "s", "Frostbolt",        [[ mana() > 1200 ]] },
+      { "s", "Ice Lance",        [[ mana() > 300 and targetHasDot("Frost Nova") ]] },
+      { "s", "Cone of Cold",     [[ enemies() > 1 ]] },
+      { "s", "Frost Nova",       [[ enemies() > 1 ]] },
+    },
+  },
 }
-
